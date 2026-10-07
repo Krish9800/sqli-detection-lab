@@ -149,7 +149,25 @@ class SQLASTAnalyzer:
     def _detect_stacked_statements(cls, text: str) -> list[DetectionFinding]:
         """Detect semicolon statement terminators indicating stacked query execution."""
         findings: list[DetectionFinding] = []
-        parsed = sqlparse.parse(text)
+        try:
+            parsed = sqlparse.parse(text)
+        except Exception:
+            findings.append(
+                DetectionFinding(
+                    finding_id="FIND-AST-DEPTH-01",
+                    rule_name="Extreme AST Nesting Depth Evasion",
+                    category=SQLiCategory.HEURISTIC_ANOMALY,
+                    confidence=ConfidenceLevel.HIGH,
+                    matched_payload=text[:100],
+                    explanation=(
+                        "Detected abnormally deep AST nesting structure designed to induce "
+                        "parser denial of service or evade token matching."
+                    ),
+                    ast_details={"error": "SQLParseError depth exceeded"},
+                )
+            )
+            return findings
+
         if len(parsed) > 1:
             findings.append(
                 DetectionFinding(
@@ -266,7 +284,10 @@ class SQLASTAnalyzer:
     @classmethod
     def extract_token_summary(cls, text: str) -> TokenSummary:
         """Extract lexical statistical metrics from input string."""
-        tokens = list(sqlparse.lexer.tokenize(text))  # type: ignore[no-untyped-call]
+        try:
+            tokens = list(sqlparse.lexer.tokenize(text))  # type: ignore[no-untyped-call]
+        except Exception:
+            tokens = []
         keyword_count = sum(1 for tok_type, _ in tokens if tok_type in Keyword)
         operator_count = sum(1 for tok_type, _ in tokens if tok_type in Operator)
         comment_count = sum(1 for tok_type, _ in tokens if tok_type in CommentToken)

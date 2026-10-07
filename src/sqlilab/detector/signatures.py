@@ -154,7 +154,7 @@ class SQLSignatureEngine:
             rule_id="SIG-SQLI-ENC-01",
             name="Dynamic String Reconstruction (CHAR / CHR / UNHEX)",
             category=SQLiCategory.HEURISTIC_ANOMALY,
-            confidence=ConfidenceLevel.MEDIUM,
+            confidence=ConfidenceLevel.HIGH,
             pattern=re.compile(
                 r"(?i)\b(char|chr)\s*\(\s*\d+(\s*,\s*\d+){2,}\s*\)|\bunhex\s*\(",
             ),

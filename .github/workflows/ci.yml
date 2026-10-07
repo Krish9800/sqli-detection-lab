@@ -1,0 +1,49 @@
+name: Continuous Integration & Security Assurance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Ruff Format Check
+        run: |
+          ruff format --check .
+
+      - name: Ruff Linter
+        run: |
+          ruff check .
+
+      - name: Mypy Static Type Checking
+        run: |
+          mypy src tests
+
+      - name: Bandit Security Analysis
+        run: |
+          bandit -r src/ -c pyproject.toml
+
+      - name: Pytest with Coverage Gate
+        run: |
+          pytest --cov=sqlilab --cov-report=term-missing --cov-report=xml --cov-fail-under=90

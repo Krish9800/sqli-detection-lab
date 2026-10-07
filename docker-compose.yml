@@ -1,0 +1,21 @@
+services:
+  sqlilab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sqlilab:latest
+    container_name: sqlilab-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SQLILAB_ENVIRONMENT=production
+      - SQLILAB_DEBUG=false
+      - SQLILAB_ANOMALY_THRESHOLD=0.65
+      - SQLILAB_ENTROPY_THRESHOLD=4.2
+      - SQLILAB_TAUTOLOGY_STRICT_MODE=true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp

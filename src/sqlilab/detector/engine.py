@@ -93,8 +93,8 @@ class SQLiDetectionEngine:
         anomaly_score: float,
     ) -> float:
         """Compute consolidated risk score from 0.0 to 100.0 based on findings and heuristics."""
-        if not findings and anomaly_score < 0.3:
-            return round(anomaly_score * 10.0, 1)
+        if not findings:
+            return round(min(25.0, anomaly_score * 25.0), 1)
 
         score = 0.0
         confidence_weights = {

@@ -133,10 +133,11 @@ class SQLHeuristicAnalyzer:
             (special_density * 1.5) + (keyword_density * 0.8) + (max(0.0, entropy - 3.5) * 0.2),
         )
 
-        # Flag 1: Abnormally high special character density or keyword density
+        # Flag 1: Abnormally high special character density combined with SQL keywords
+        has_injection_marker = bool(re.search(r"['\"]|--|/\*|#", text))
         if len(text) >= 6 and (
             (special_density >= density_threshold and keyword_density > 0.0)
-            or (keyword_density >= 0.4 and special_density > 0.05)
+            or (has_injection_marker and keyword_density >= 0.3 and special_density > 0.05)
         ):
             findings.append(
                 DetectionFinding(

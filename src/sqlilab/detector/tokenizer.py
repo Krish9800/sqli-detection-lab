@@ -287,3 +287,11 @@ class SQLASTAnalyzer:
             unbalanced_quotes=unbalanced_quotes,
             unbalanced_parens=unbalanced_parens,
         )
+
+    def analyze(self, input_text: str) -> list[DetectionFinding]:
+        """Instance method alias for analyze_input."""
+        return self.analyze_input(input_text)
+
+    def extract_tokens(self, text: str) -> TokenSummary:
+        """Instance method alias for extract_token_summary."""
+        return self.extract_token_summary(text)

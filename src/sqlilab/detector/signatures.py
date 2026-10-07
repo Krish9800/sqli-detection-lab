@@ -190,3 +190,7 @@ class SQLSignatureEngine:
                 )
 
         return findings
+
+    def scan(self, input_text: str) -> list[DetectionFinding]:
+        """Instance method alias for match_signatures."""
+        return self.match_signatures(input_text)

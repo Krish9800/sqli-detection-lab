@@ -1,10 +1,21 @@
 """Heuristic and information-theoretic entropy analyzer for SQL injection payloads."""
 
+from dataclasses import dataclass
 import math
 import re
 from typing import ClassVar
 
 from sqlilab.models.finding import ConfidenceLevel, DetectionFinding, SQLiCategory
+
+
+@dataclass(frozen=True)
+class HeuristicMetrics:
+    """Statistical and information-theoretic metrics for an analyzed string."""
+
+    entropy: float
+    special_char_density: float
+    keyword_density: float
+    anomaly_score: float
 
 
 class SQLHeuristicAnalyzer:
@@ -164,3 +175,26 @@ class SQLHeuristicAnalyzer:
             )
 
         return round(score, 4), findings
+
+    def analyze(
+        self,
+        text: str,
+        entropy_threshold: float = 4.5,
+        density_threshold: float = 0.25,
+    ) -> tuple[HeuristicMetrics, list[DetectionFinding]]:
+        """Compute full statistical heuristics and generate findings."""
+        entropy = self.calculate_shannon_entropy(text)
+        special_density = self.calculate_special_char_density(text)
+        keyword_density = self.calculate_keyword_density(text)
+        score, findings = self.analyze_heuristics(
+            text,
+            entropy_threshold=entropy_threshold,
+            density_threshold=density_threshold,
+        )
+        metrics = HeuristicMetrics(
+            entropy=entropy,
+            special_char_density=special_density,
+            keyword_density=keyword_density,
+            anomaly_score=score,
+        )
+        return metrics, findings
